@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5432:5432"
+
+  webserver:
+    image: apache/airflow:2.9.0
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'mysecretkey123'
+    depends_on:
+      - postgres
+      - polygons_db
+      - results_db
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+    command: webserver
+
+  scheduler:
+    image: apache/airflow:2.9.0
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: 'mysecretkey123'
+    depends_on:
+      - postgres
+      - polygons_db
+      - results_db
+    volumes:
+      - ./dags:/opt/airflow/dags
+    command: scheduler
+
+  polygons_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: polygons_user
+      POSTGRES_PASSWORD: polygons_pass
+      POSTGRES_DB: polygons_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - polygons_data:/var/lib/postgresql/data
+
+  results_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: results_user
+      POSTGRES_PASSWORD: results_pass
+      POSTGRES_DB: results_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - results_data:/var/lib/postgresql/data
+
+volumes:
+  polygons_data:
+  results_data:
