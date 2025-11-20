@@ -137,3 +137,8 @@ If you want, I can:
 - Add a sample example DAG to `dags/`.
 - Extend `docker-compose.yaml` with more useful defaults (Airflow user UID/GID, persistent volumes, redis/flower, etc.).
 
+# Build the C++ binary inside the container
+docker-compose -f docker-compose.build.yaml run --rm cpp_builder
+
+# Or to keep it running and rebuild multiple times
+docker-compose -f docker-compose.build.yaml up

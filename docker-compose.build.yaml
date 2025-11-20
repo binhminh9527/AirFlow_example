@@ -1,0 +1,11 @@
+services:
+  cpp_builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    working_dir: /opt/airflow/dags/IntersectCalculation
+    volumes:
+      - ./IntersectCalculation:/opt/airflow/dags/IntersectCalculation
+      - ./dags/bin:/opt/airflow/dags/bin
+    command: bash -c "mkdir -p ../dags/bin && make clean && make"
+    user: root
