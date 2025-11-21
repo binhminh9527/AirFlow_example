@@ -1,10 +1,10 @@
 CXX = g++
-CXXFLAGS = -std=c++23 -Wall -O2 -I/usr/include/postgresql
-LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lpq -lpthread
+CXXFLAGS = -std=c++23 -Wall -O2 -I/usr/include/postgresql -I/usr/include/gdal
+LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lpq -lpthread -lgdal
 
 TARGET = ../dags/bin/IntersectCalculation_bin
 
-SRC = main.cpp DatabaseHandler.cpp IntersectCalculation.cpp
+SRC = main.cpp DatabaseHandler.cpp LandProperty.cpp ShapefileHandler.cpp
 
 all: $(TARGET)
 

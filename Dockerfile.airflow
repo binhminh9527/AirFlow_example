@@ -18,7 +18,7 @@ RUN apt-get update \
     libgdal-dev \
     libspatialindex-dev \
  && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get install libgdal-dev
 # restore non-root user used by the base image
 USER airflow
 

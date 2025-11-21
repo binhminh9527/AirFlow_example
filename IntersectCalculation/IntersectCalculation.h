@@ -7,7 +7,8 @@
 
 class IntersectCalculation {
 public:
-    std::vector<std::string> calculateIntersections(const std::vector<std::vector<std::pair<double, double>>>& polygons);
+    bool isIntersect( 
+        const std::vector<std::pair<double, double>>& targetArea, 
+        const std::vector<std::vector<std::pair<double, double>>>& disasterArea );
 };
-
 #endif // INTERSECT_CALCULATION_H

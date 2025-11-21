@@ -4,7 +4,10 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <utility>
 #include <libpq-fe.h>
+#include "LandProperty.h"
+#include <ogrsf_frmts.h>
 
 struct Polygon {
     std::string owner;
@@ -33,8 +36,7 @@ public:
     
     ~DatabaseHandler();
 
-    std::vector<Polygon> getPolygons();
-    std::vector<std::string> getPolygonOwners();
+    std::vector<LandProperty> getLandProperties();
     bool isConnected() const;
 };
 

@@ -34,10 +34,6 @@ with DAG(
     Download_task = PythonOperator(
         task_id="Download_task",
         python_callable=load_parcel_to_postgres_array,
-        op_kwargs={
-            "shapefile_path": "data/parcels.shp",
-            "table_name": "parcel_data",
-        },
     )
 
     # a task that runs in parallel with the sequential task (both depend on hello_task)
@@ -47,7 +43,11 @@ with DAG(
         task_id="IntersectCalculation",
         bash_command=IntersectCalculation_bin,
     )
-    # Dependencies:
 
-    hello_task >> Download_task
-    Download_task >> IntersectCalculation
+    VerifyDB = BashOperator(
+        task_id="VerifyDB",
+        bash_command="ls",
+    )
+    
+    # Dependencies:
+    hello_task >> Download_task >> IntersectCalculation >> VerifyDB
