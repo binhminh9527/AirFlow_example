@@ -24,6 +24,8 @@ services:
       - "8080:8080"
     volumes:
       - ./dags:/opt/airflow/dags
+      - ./Dataset_Cali_Wildfire:/opt/airflow/Dataset_Cali_Wildfire:ro
+      - ./Parcel_Data:/opt/airflow/Parcel_Data:ro
     command: webserver
 
   scheduler:
@@ -39,6 +41,8 @@ services:
       - results_db
     volumes:
       - ./dags:/opt/airflow/dags
+      - ./Dataset_Cali_Wildfire:/opt/airflow/Dataset_Cali_Wildfire:ro
+      - ./Parcel_Data:/opt/airflow/Parcel_Data:ro
     command: scheduler
 
   polygons_db:

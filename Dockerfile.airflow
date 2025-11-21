@@ -2,7 +2,7 @@ FROM apache/airflow:2.9.0
 
 USER root
 
-# Install build tools and PostgreSQL development libraries
+# Install build tools and PostgreSQL development libraries and GDAL for geopandas
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     libstdc++6 \
@@ -14,9 +14,18 @@ RUN apt-get update \
     libssl-dev \
     libkrb5-dev \
     libldap2-dev \
+    gdal-bin \
+    libgdal-dev \
+    libspatialindex-dev \
  && rm -rf /var/lib/apt/lists/*
-# Install Python PostgreSQL driver
 
 # restore non-root user used by the base image
 USER airflow
-RUN pip install --no-cache-dir psycopg2-binary
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    psycopg2-binary \
+    geopandas \
+    shapely \
+    fiona \
+    pyproj

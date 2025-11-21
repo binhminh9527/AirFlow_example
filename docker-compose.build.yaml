@@ -3,9 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.airflow
-    working_dir: /opt/airflow/dags/IntersectCalculation
+    working_dir: /workspace/IntersectCalculation
     volumes:
-      - ./IntersectCalculation:/opt/airflow/dags/IntersectCalculation
-      - ./dags/bin:/opt/airflow/dags/bin
-    command: bash -c "mkdir -p ../dags/bin && make clean && make"
+      - ./IntersectCalculation:/workspace/IntersectCalculation
+      - ./dags/bin:/workspace/dags/bin
+    command: bash -c "mkdir -p /workspace/dags/bin && make clean && make"
     user: root

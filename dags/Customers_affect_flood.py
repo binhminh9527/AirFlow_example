@@ -6,7 +6,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 
-from dowload_task.download_flood_data import download_flood_data as download_flood_data
+from LoadParceltoPostgre.LoadParceltoPostgre import load_parcel_to_postgres_array as load_parcel_to_postgres_array
 
 def print_hello():
     logging.info("Hello from Airflow!")
@@ -33,8 +33,11 @@ with DAG(
 
     Download_task = PythonOperator(
         task_id="Download_task",
-        python_callable=download_flood_data,
-        op_kwargs={"url": "https://example.com/flood_data.csv", "output_path": "data/flood_data.csv"},
+        python_callable=load_parcel_to_postgres_array,
+        op_kwargs={
+            "shapefile_path": "data/parcels.shp",
+            "table_name": "parcel_data",
+        },
     )
 
     # a task that runs in parallel with the sequential task (both depend on hello_task)

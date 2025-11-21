@@ -8,22 +8,22 @@
 int main() {
     try {
         // Get database connection parameters from environment variables or use defaults
-        std::string host = std::getenv("PGHOST") ? std::getenv("PGHOST") : "polygons_db";
-        std::string port = std::getenv("PGPORT") ? std::getenv("PGPORT") : "5432";
-        std::string dbname = std::getenv("PGDATABASE") ? std::getenv("PGDATABASE") : "polygons_db";
-        std::string user = std::getenv("PGUSER") ? std::getenv("PGUSER") : "polygons_user";
-        std::string password = std::getenv("PGPASSWORD") ? std::getenv("PGPASSWORD") : "polygons_pass";
 
         // Initialize database handler with connection parameters
-        DatabaseHandler dbHandler(host, port, dbname, user, password);
-
-        if (!dbHandler.isConnected()) {
+        DatabaseHandler polygondb_Handler("polygons_db", "5432", "polygons_db", "polygons_user", "polygons_pass");
+        if (!polygondb_Handler.isConnected()) {
             std::cerr << "Failed to connect to database. Exiting." << std::endl;
+            return 1;
+        }
+        
+        DatabaseHandler resultsdb_Handler("results_db", "5432", "results_db", "results_user", "results_pass");
+        if (!resultsdb_Handler.isConnected()) {
+            std::cerr << "Failed to connect to results database. Exiting." << std::endl;
             return 1;
         }
 
         // Fetch polygons from database
-        std::vector<Polygon> polygons = dbHandler.getPolygons();
+        std::vector<Polygon> polygons = polygondb_Handler.getPolygons();
         
         std::cout << "\nPolygons in database:" << std::endl;
         for (const auto& poly : polygons) {
@@ -33,7 +33,7 @@ int main() {
         }
 
         // Fetch unique owners
-        std::vector<std::string> owners = dbHandler.getPolygonOwners();
+        std::vector<std::string> owners = polygondb_Handler.getPolygonOwners();
         
         std::cout << "\nUnique owners:" << std::endl;
         for (const auto& owner : owners) {
