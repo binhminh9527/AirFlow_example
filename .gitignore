@@ -1,0 +1,6 @@
+# Python virtual environments
+Shapefile_validity_test/env/
+env/
+venv/
+*.pyc
+__pycache__/
