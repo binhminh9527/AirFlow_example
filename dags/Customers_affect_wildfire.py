@@ -8,12 +8,8 @@ from airflow.operators.bash import BashOperator
 
 from LoadParceltoPostgre.LoadParceltoPostgre import load_parcel_to_postgres_array as load_parcel_to_postgres_array
 
-def print_hello():
-    logging.info("Hello from Airflow!")
-
-
 with DAG(
-    dag_id="Flood_Customers_DAG",
+    dag_id="WildFire_Customers_DAG",
     start_date=datetime(2023, 1, 1),
     schedule_interval="@daily",
     catchup=False,
@@ -23,10 +19,12 @@ with DAG(
     },
     description="A simple example DAG",
 ) as dag:
-    # original task
-    hello_task = PythonOperator(
-        task_id="hello_task",
-        python_callable=print_hello,
+    # Polygon validation task
+    PolygonValidator_bin = os.path.normpath(os.path.join(os.path.dirname(__file__),"bin", "PolygonValidator_bin"))
+    
+    Polygon_validate = BashOperator(
+        task_id="Polygon_validation",
+        bash_command=f"{PolygonValidator_bin} /opt/airflow/Parcel_Data/Parcel_data.shp && {PolygonValidator_bin} /opt/airflow/Dataset_Cali_Wildfire/Wildfires.shp",
     )
 
     # sequential task that runs after hello_task
@@ -50,4 +48,4 @@ with DAG(
     )
     
     # Dependencies:
-    hello_task >> Download_task >> IntersectCalculation >> VerifyDB
+    Polygon_validate >> Download_task >> IntersectCalculation >> VerifyDB

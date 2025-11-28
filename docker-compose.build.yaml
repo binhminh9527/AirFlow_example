@@ -3,9 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.airflow
-    working_dir: /workspace/IntersectCalculation
+    working_dir: /workspace
     volumes:
+      - ./Common:/workspace/Common
       - ./IntersectCalculation:/workspace/IntersectCalculation
+      - ./PolygonValidator:/workspace/PolygonValidator
       - ./dags/bin:/workspace/dags/bin
-    command: bash -c "mkdir -p /workspace/dags/bin && make clean && make"
+    command: bash -c "mkdir -p /workspace/dags/bin && cd IntersectCalculation && make clean && make && cd ../PolygonValidator && make clean && make"
     user: root
