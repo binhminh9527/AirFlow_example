@@ -26,6 +26,7 @@ private:
     static bool holesAreContainedInOuter(const OGRPolygon& poly, std::string* err);
     static bool holesDoNotTouchOuter(const OGRPolygon& poly, std::string* err);
     static bool ringsDoNotOverlap(const OGRPolygon& poly, std::string* err);
+    static bool hasOverlappingHoles(const OGRPolygon& poly, std::string* err);
     
     // Helper functions
     static double computeSignedArea(const OGRLinearRing* ring);

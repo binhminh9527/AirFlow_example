@@ -28,6 +28,7 @@ bool PolygonValidator::isValid(const OGRPolygon& poly, std::string* err) {
         if (!hasCorrectWindingOrder(hole, false, err)) return false;
         if (!isNotCollinear(hole, err)) return false;
     }
+    if(!hasOverlappingHoles(poly, err)) return false;
     
     if (!holesAreContainedInOuter(poly, err)) return false;
     if (!holesDoNotTouchOuter(poly, err)) return false;
@@ -239,6 +240,37 @@ bool PolygonValidator::ringsDoNotOverlap(const OGRPolygon& poly, std::string* er
                 delete intersection;
                 if (err) *err = "Interior rings overlap";
                 return false;
+            }
+            if (intersection) delete intersection;
+        }
+    }
+    return true;
+}
+
+bool PolygonValidator::hasOverlappingHoles(const OGRPolygon& poly, std::string* err) {
+    // Check if any two interior rings (holes) overlap with each other
+    int numHoles = poly.getNumInteriorRings();
+    
+    for (int i = 0; i < numHoles; ++i) {
+        const OGRLinearRing* hole1 = poly.getInteriorRing(i);
+        OGRPolygon poly1;
+        poly1.addRing(const_cast<OGRLinearRing*>(hole1));
+        
+        for (int j = i + 1; j < numHoles; ++j) {
+            const OGRLinearRing* hole2 = poly.getInteriorRing(j);
+            OGRPolygon poly2;
+            poly2.addRing(const_cast<OGRLinearRing*>(hole2));
+            
+            // Check if the two holes intersect
+            OGRGeometry* intersection = poly1.Intersection(&poly2);
+            if (intersection && !intersection->IsEmpty()) {
+                // Check if the intersection is more than just a point or line (i.e., an area overlap)
+                if (intersection->getGeometryType() == wkbPolygon || 
+                    intersection->getGeometryType() == wkbMultiPolygon) {
+                    delete intersection;
+                    if (err) *err = "Two or more interior rings (holes) overlap";
+                    return false;
+                }
             }
             if (intersection) delete intersection;
         }
