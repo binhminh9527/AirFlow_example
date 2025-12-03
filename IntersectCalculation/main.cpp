@@ -7,6 +7,7 @@
 #include <utility>
 #include <cstdlib>
 #include <ogrsf_frmts.h>
+#include "InvalidPolygonTableHandler.h"
 
 int main() {
 
@@ -28,11 +29,23 @@ int main() {
     ShapefileHandler wildfireAreaHandler("/opt/airflow/Dataset_Cali_Wildfire/Wildfires.shp");
     auto wildfirePolygons = wildfireAreaHandler.getPolygons();
 
+    // Initialize invalid wildfire lookup (invalid_wildfire table)
+    InvalidPolygonTableHandler invalidHandler("polygons_db", "5432", "polygons_db", "polygons_user", "polygons_pass");
+    bool invalidTableAvailable = invalidHandler.isConnected();
+
     // Check intersections
     std::vector<bool> isaffected(landProperties.size(), false);
     for (size_t i = 0; i < landProperties.size(); i++) {
-        for (const auto& wildfirePolygon : wildfirePolygons) {
-            OGRGeometry* intersection = landProperties[i].getPolygon().Intersection(&wildfirePolygon);
+        for (size_t j = 0; j < wildfirePolygons.size(); j++) {
+            // Skip wildfire polygon if marked invalid in DB (1=invalid)
+            if (invalidTableAvailable) {
+                bool wfInvalid = false;
+                if (invalidHandler.isWildfireInvalid(static_cast<int>(j), wfInvalid) && wfInvalid) {
+                    continue;
+                }
+            }
+
+            OGRGeometry* intersection = landProperties[i].getPolygon().Intersection(&wildfirePolygons[j]);
 
             if (intersection != nullptr && !intersection->IsEmpty()) {
                 std::cout << "Land Property ID " << landProperties[i].getId() 

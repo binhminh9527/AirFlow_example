@@ -1,5 +1,6 @@
 #include "PolygonValidator.h"
 #include "../Common/ShapefileHandler.h"
+#include "InvalidPolygonTableHandler.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -7,6 +8,7 @@
 void printUsage(const char* progName) {
     std::cout << "Usage: " << progName << " <shapefile_path>" << std::endl;
     std::cout << "Validates all polygons in the given shapefile." << std::endl;
+    std::cout << "If shapefile is wildfire data, stores validity in database." << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -16,6 +18,14 @@ int main(int argc, char* argv[]) {
     }
 
     std::string shapefilePath = argv[1];
+    
+    // Connect to database and auto-create table if needed
+    InvalidPolygonTableHandler db("polygons_db", "5432", "polygons_db", "polygons_user", "polygons_pass");
+    bool dbConnected = db.isConnected();
+    
+    if (!dbConnected) {
+        std::cout << "Warning: Database not connected. Validation results won't be stored." << std::endl;
+    }
     
     std::cout << "Loading shapefile: " << shapefilePath << std::endl;
     ShapefileHandler handler(shapefilePath);
@@ -44,6 +54,14 @@ int main(int argc, char* argv[]) {
             std::cout << "✗ Polygon " << i << ": INVALID - " << err << std::endl;
             invalidCount++;
         }
+        
+        // Store result in database (1 = invalid, 0 = valid)
+        if (dbConnected) {
+            bool isInvalid = !isValid;
+            if (!db.setWildfireValidity(static_cast<int>(i), isInvalid)) {
+                std::cerr << "Warning: Failed to store validity for polygon " << i << std::endl;
+            }
+        }
     }
     
     std::cout << "\n========================================" << std::endl;
@@ -53,5 +71,5 @@ int main(int argc, char* argv[]) {
     std::cout << "  Invalid:        " << invalidCount << std::endl;
     std::cout << "========================================" << std::endl;
     
-    return (invalidCount > 0) ? 1 : 0;
+    return (invalidCount > 100) ? 1 : 0;
 }

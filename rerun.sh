@@ -1,3 +1,4 @@
+docker-compose -f docker-compose.build.yaml up
 docker compose down
 docker compose up -d polygons_db results_db postgres
 docker compose run webserver airflow db init

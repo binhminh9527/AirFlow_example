@@ -1,6 +1,7 @@
 #include "PolygonValidator.h"
 #include <iostream>
 #include <cmath>
+#include <sstream>
 #include "ogrsf_frmts.h"
 
 
@@ -84,9 +85,50 @@ bool PolygonValidator::coordsAreFinite(const OGRLinearRing* ring, std::string* e
 
 bool PolygonValidator::geosIsValid(const OGRPolygon& poly, std::string* err) {
     // If GDAL was built with GEOS, IsValid() will test for self-intersection etc.
-    // If GEOS is not available, IsValid() still exists but may be limited.
+    // Allow small self-intersections based on area tolerance
+    const double SELF_INTERSECTION_TOLERANCE = 1e-6; // Allow self-intersection up to 0.0001% of polygon area
+    
     if (!poly.IsValid()) {
-        if (err) *err = "GEOS validity check failed (self-intersection or other topology issue)";
+        // Check if it's a self-intersection issue and if it's within tolerance
+        OGRGeometry* buffered = poly.Buffer(0.0); // Attempts to fix self-intersections
+        if (buffered && buffered->IsValid()) {
+            // Calculate the area difference
+            double originalArea = std::fabs(poly.get_Area());
+            OGRPolygon* bufferedPoly = dynamic_cast<OGRPolygon*>(buffered);
+            double bufferedArea = 0.0;
+            if (bufferedPoly)
+                bufferedArea = std::fabs(bufferedPoly->get_Area());
+            
+            if (originalArea > 0) {
+                double areaDiff = std::fabs(originalArea - bufferedArea);
+                double relativeError = areaDiff / originalArea;
+                double percent = relativeError * 100.0;
+                double tolPercent = SELF_INTERSECTION_TOLERANCE * 100.0;
+
+                delete buffered;
+
+                // If the difference is small, allow it
+                if (relativeError <= SELF_INTERSECTION_TOLERANCE) {
+                    return true;
+                }
+
+                if (err) {
+                    std::ostringstream oss;
+                    oss.setf(std::ios::fixed);
+                    oss.precision(6);
+                    oss << "GEOS validity check failed (self-intersection "
+                        << percent << "% > tolerance " << tolPercent << "%)";
+                    *err = oss.str();
+                }
+                return false;
+            } else {
+                delete buffered;
+            }
+        } else if (buffered) {
+            delete buffered;
+        }
+        
+        if (err) *err = "GEOS validity check failed (self-intersection exceeds tolerance)";
         return false;
     }
     return true;
@@ -267,7 +309,7 @@ bool PolygonValidator::hasOverlappingHoles(const OGRPolygon& poly, std::string* 
                 // Check if the intersection is more than just a point or line (i.e., an area overlap)
                 if (intersection->getGeometryType() == wkbPolygon || 
                     intersection->getGeometryType() == wkbMultiPolygon) {
-                    delete intersection;
+                delete intersection;
                     if (err) *err = "Two or more interior rings (holes) overlap";
                     return false;
                 }

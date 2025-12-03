@@ -4,7 +4,7 @@ LDFLAGS = -L/usr/lib/x86_64-linux-gnu -lpq -lpthread -lgdal
 
 TARGET = ../dags/bin/IntersectCalculation_bin
 
-SRC = main.cpp ../Common/DatabaseHandler.cpp ../Common/LandProperty.cpp ../Common/ShapefileHandler.cpp
+SRC = ./main.cpp ../Common/DatabaseHandler.cpp ../Common/LandProperty.cpp ../Common/ShapefileHandler.cpp ../Common/InvalidPolygonTableHandler.cpp
 
 all: $(TARGET)
 

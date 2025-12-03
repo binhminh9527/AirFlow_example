@@ -56,35 +56,30 @@ overlapping_rings = [outer_ring_overlap, overlap_ring]
 w.poly(overlapping_rings)
 w.record("OverlappingRings")
 
-# 7. Open polygon (not closed)
-open_polygon = [[(0, 0), (2, 0), (2, 2), (0, 2)]]  # Missing closing point
-w.poly(open_polygon)
-w.record("OpenPolygon")
+# 7. Two overlapping inner rings (holes)
+outer_ring_two_holes = [(0, 0), (0, 10), (10, 10), (10, 0), (0, 0)]
+hole1 = [(2, 2), (6, 2), (6, 6), (2, 6), (2, 2)]
+hole2 = [(4, 4), (8, 4), (8, 8), (4, 8), (4, 4)]  # Overlaps with hole1
+two_overlapping_holes = [outer_ring_two_holes, hole1, hole2]
+w.poly(two_overlapping_holes)
+w.record("TwoOverlappingHoles")
 
-# # 8. Polygon with collinear points only
-# collinear_points = [[(0, 0), (1, 0), (2, 0), (3, 0), (0, 0)]]
-# w.poly(collinear_points)
-# w.record("CollinearPoints")
+# 8. Polygon with collinear points only
+collinear_points = [[(0, 0), (1, 0), (2, 0), (3, 0), (0, 0)]]
+w.poly(collinear_points)
+w.record("CollinearPoints")
 
-# # 9. 2 CW rings (invalid winding order)
-# outer_ring_multi_CWring = [(10, 10), (10, 14), (14, 14), (14, 10), (10, 10)]
-# inner_ring_multi_CWring = [(11, 11), (11, 13), (13, 13), (13, 11), (11, 11)]
-# multi_CWring = [outer_ring_multi_CWring, inner_ring_multi_CWring]
-# w.poly(multi_CWring)
-# w.record("multi_CWring")
+# 9. Valid polygon (simple rectangle) - correct geometry case
+valid_polygon1 = [[(10, 10), (10, 14), (14, 14), (14, 10), (10, 10)]]
+w.poly(valid_polygon1)
+w.record("ValidPolygon_case1")
 
-
-# # 10. Valid polygon (simple rectangle) - correct geometry case
-# valid_polygon1 = [[(10, 10), (10, 14), (14, 14), (14, 10), (10, 10)]]
-# w.poly(valid_polygon1)
-# w.record("ValidPolygon_case1")
-
-# # 11. Valid polygon (simple rectangle) - correct geometry case
-# outer_ring_valid2 = [(10, 10), (10, 14), (14, 14), (14, 10), (10, 10)]
-# inner_ring_valid2 = [(11, 11), (13, 11), (13, 13), (11, 13), (11, 11)]
-# valid_polygon2 = [outer_ring_valid2, inner_ring_valid2]
-# w.poly(valid_polygon2)
-# w.record("ValidPolygon_case2")
+# 10. Valid polygon with hole - correct geometry case
+outer_ring_valid2 = [(10, 10), (10, 14), (14, 14), (14, 10), (10, 10)]
+inner_ring_valid2 = [(11, 11), (13, 11), (13, 13), (11, 13), (11, 11)]
+valid_polygon2 = [outer_ring_valid2, inner_ring_valid2]
+w.poly(valid_polygon2)
+w.record("ValidPolygon_case2")
 
 # Save the shapefile
 w.close()

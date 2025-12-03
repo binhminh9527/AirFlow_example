@@ -14,7 +14,7 @@ with DAG(
     schedule_interval="@daily",
     catchup=False,
     default_args={
-        "retries": 1,
+        "retries": 0,
         "retry_delay": timedelta(seconds=5),
     },
     description="A simple example DAG",
